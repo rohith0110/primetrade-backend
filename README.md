@@ -1,8 +1,14 @@
 # Primetrade Backend Assignment
 
-A small full-stack app for the Primetrade.ai backend intern assignment: a trade journal where users can log their trades, with JWT auth and role-based access. Backend is the main focus; the frontend is there to exercise the API.
-https://primetrade-backend-swart.vercel.app - Frontend Link
-https://primetrade-backend-aafj.onrender.com - Backend Link
+A small full-stack app for the Primetrade.ai backend intern assignment: a trade journal where users can log their trades, with JWT authentication and role-based access control. The backend is the main focus; the frontend is included to exercise the API.
+
+## Links
+
+Frontend:  
+https://primetrade-backend-swart.vercel.app
+
+Backend:  
+https://primetrade-backend-aafj.onrender.com
 
 ## Stack
 
