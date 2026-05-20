@@ -12,6 +12,12 @@ const spec = swaggerJSDoc({
       description: 'Trade journal API with JWT auth and role-based access.',
     },
     servers: [{ url: '/api/v1' }],
+    tags: [
+      { name: 'auth', description: 'register, sign in, identity' },
+      { name: 'me', description: 'the currently signed-in user' },
+      { name: 'trades', description: 'crud on your own trade journal' },
+      { name: 'admin', description: 'admin-only endpoints — manage users and view all trades' },
+    ],
     components: {
       securitySchemes: {
         bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
