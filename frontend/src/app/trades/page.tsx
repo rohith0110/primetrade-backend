@@ -4,7 +4,19 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { RequireAuth } from '@/components/require-auth';
 import { tradesApi, type Trade, type TradeInput } from '@/lib/trades';
-import { Alert, Badge, Button, Card, Input, Label, Select, Textarea } from '@/components/ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  FieldError,
+  FieldHint,
+  Input,
+  Label,
+  Select,
+  Textarea,
+} from '@/components/ui';
+import { createTradeSchema, fieldErrorsFrom, tagSchema } from '@/lib/validation';
 
 function pnlClass(pnl: string | null) {
   if (!pnl) return 'text-white/40';
@@ -14,7 +26,17 @@ function pnlClass(pnl: string | null) {
   return 'text-white/60';
 }
 
-const empty: TradeInput = {
+type FormState = {
+  symbol: string;
+  side: 'LONG' | 'SHORT';
+  entryPrice: string;
+  quantity: string;
+  exitPrice: string;
+  notes: string;
+  tags: string[];
+};
+
+const empty: FormState = {
   symbol: '',
   side: 'LONG',
   entryPrice: '',
@@ -24,14 +46,19 @@ const empty: TradeInput = {
   tags: [],
 };
 
+type FieldKey = keyof Omit<FormState, 'tags' | 'side'> | 'tags' | 'side';
+
 function TradesInner() {
   const [items, setItems] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<'' | 'OPEN' | 'CLOSED'>('');
   const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState<TradeInput>(empty);
+  const [form, setForm] = useState<FormState>(empty);
   const [tagInput, setTagInput] = useState('');
-  const [err, setErr] = useState<string | null>(null);
+  const [tagError, setTagError] = useState<string | null>(null);
+  const [touched, setTouched] = useState<Partial<Record<FieldKey, boolean>>>({});
+  const [errors, setErrors] = useState<Partial<Record<FieldKey, string>>>({});
+  const [formErr, setFormErr] = useState<string | null>(null);
   const [okMsg, setOk] = useState<string | null>(null);
 
   async function load() {
@@ -52,41 +79,96 @@ function TradesInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
 
+  function validate(showAll = false) {
+    const result = createTradeSchema.safeParse({
+      symbol: form.symbol,
+      side: form.side,
+      entryPrice: form.entryPrice,
+      quantity: form.quantity,
+      exitPrice: form.exitPrice,
+      notes: form.notes,
+      tags: form.tags.length ? form.tags : undefined,
+    });
+    if (!result.success) {
+      setErrors(fieldErrorsFrom<typeof createTradeSchema>(result.error));
+      if (showAll) {
+        setTouched({
+          symbol: true,
+          side: true,
+          entryPrice: true,
+          quantity: true,
+          exitPrice: true,
+          notes: true,
+        });
+      }
+      return null;
+    }
+    setErrors({});
+    return result.data;
+  }
+
+  function blur(field: FieldKey) {
+    setTouched((t) => ({ ...t, [field]: true }));
+    validate();
+  }
+
   async function onCreate(e: React.FormEvent) {
     e.preventDefault();
-    setErr(null);
+    setFormErr(null);
     setOk(null);
+    const parsed = validate(true);
+    if (!parsed) return;
+
     setCreating(true);
     try {
       const payload: TradeInput = {
-        ...form,
-        exitPrice: form.exitPrice ? form.exitPrice : undefined,
-        notes: form.notes || undefined,
-        tags: form.tags && form.tags.length > 0 ? form.tags : undefined,
+        symbol: parsed.symbol,
+        side: parsed.side,
+        entryPrice: parsed.entryPrice,
+        quantity: parsed.quantity,
+        exitPrice: parsed.exitPrice,
+        notes: parsed.notes,
+        tags: parsed.tags && parsed.tags.length > 0 ? parsed.tags : undefined,
       };
       await tradesApi.create(payload);
       setForm(empty);
       setTagInput('');
+      setTouched({});
       setOk('trade saved');
       await load();
     } catch (e: unknown) {
-      setErr((e as { message?: string }).message ?? 'could not save trade');
+      setFormErr((e as { message?: string }).message ?? 'could not save trade');
     } finally {
       setCreating(false);
     }
   }
 
   function addTag() {
-    const t = tagInput.trim();
-    if (!t) return;
-    if ((form.tags ?? []).includes(t)) return;
-    setForm({ ...form, tags: [...(form.tags ?? []), t] });
+    const raw = tagInput;
+    const result = tagSchema.safeParse(raw);
+    if (!result.success) {
+      setTagError(result.error.issues[0]?.message ?? 'invalid tag');
+      return;
+    }
+    const t = result.data;
+    if (form.tags.includes(t)) {
+      setTagError('already added');
+      return;
+    }
+    if (form.tags.length >= 10) {
+      setTagError('at most 10 tags');
+      return;
+    }
+    setForm({ ...form, tags: [...form.tags, t] });
     setTagInput('');
+    setTagError(null);
   }
 
   function removeTag(t: string) {
-    setForm({ ...form, tags: (form.tags ?? []).filter((x) => x !== t) });
+    setForm({ ...form, tags: form.tags.filter((x) => x !== t) });
   }
+
+  const showError = (f: FieldKey) => (touched[f] ? errors[f] : undefined);
 
   return (
     <div className="space-y-8">
@@ -112,82 +194,133 @@ function TradesInner() {
 
       <Card>
         <h2 className="text-lg font-semibold">log a trade</h2>
-        <form onSubmit={onCreate} className="mt-4 grid gap-4 sm:grid-cols-2">
+        <form onSubmit={onCreate} noValidate className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
             <Label htmlFor="symbol">symbol</Label>
             <Input
               id="symbol"
+              name="symbol"
+              type="text"
               value={form.symbol}
-              onChange={(e) => setForm({ ...form, symbol: e.target.value })}
+              onChange={(e) => setForm({ ...form, symbol: e.target.value.toUpperCase() })}
+              onBlur={() => blur('symbol')}
+              invalid={!!showError('symbol')}
+              autoCapitalize="characters"
+              autoCorrect="off"
+              spellCheck={false}
+              maxLength={20}
               placeholder="BTCUSDT"
               required
             />
+            <FieldError>{showError('symbol')}</FieldError>
           </div>
+
           <div>
             <Label htmlFor="side">side</Label>
             <Select
               id="side"
+              name="side"
               value={form.side}
               onChange={(e) => setForm({ ...form, side: e.target.value as 'LONG' | 'SHORT' })}
+              onBlur={() => blur('side')}
+              invalid={!!showError('side')}
             >
               <option value="LONG">long</option>
               <option value="SHORT">short</option>
             </Select>
+            <FieldError>{showError('side')}</FieldError>
           </div>
+
           <div>
             <Label htmlFor="entry">entry price</Label>
             <Input
               id="entry"
+              name="entryPrice"
+              type="text"
+              inputMode="decimal"
+              pattern="[0-9]*\.?[0-9]*"
               value={form.entryPrice}
               onChange={(e) => setForm({ ...form, entryPrice: e.target.value })}
-              inputMode="decimal"
+              onBlur={() => blur('entryPrice')}
+              invalid={!!showError('entryPrice')}
+              maxLength={24}
               placeholder="65000.50"
               required
             />
+            <FieldError>{showError('entryPrice')}</FieldError>
           </div>
+
           <div>
             <Label htmlFor="qty">quantity</Label>
             <Input
               id="qty"
+              name="quantity"
+              type="text"
+              inputMode="decimal"
+              pattern="[0-9]*\.?[0-9]*"
               value={form.quantity}
               onChange={(e) => setForm({ ...form, quantity: e.target.value })}
-              inputMode="decimal"
+              onBlur={() => blur('quantity')}
+              invalid={!!showError('quantity')}
+              maxLength={24}
               placeholder="0.1"
               required
             />
+            <FieldError>{showError('quantity')}</FieldError>
           </div>
+
           <div>
             <Label htmlFor="exit">exit price (optional)</Label>
             <Input
               id="exit"
-              value={form.exitPrice ?? ''}
-              onChange={(e) => setForm({ ...form, exitPrice: e.target.value })}
+              name="exitPrice"
+              type="text"
               inputMode="decimal"
+              pattern="[0-9]*\.?[0-9]*"
+              value={form.exitPrice}
+              onChange={(e) => setForm({ ...form, exitPrice: e.target.value })}
+              onBlur={() => blur('exitPrice')}
+              invalid={!!showError('exitPrice')}
+              maxLength={24}
               placeholder="leave blank if still open"
             />
+            <FieldError>{showError('exitPrice')}</FieldError>
           </div>
+
           <div>
             <Label htmlFor="tag">tags</Label>
             <div className="flex gap-2">
               <Input
                 id="tag"
+                name="tag"
+                type="text"
                 value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
+                onChange={(e) => {
+                  setTagInput(e.target.value);
+                  if (tagError) setTagError(null);
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
                     addTag();
                   }
                 }}
+                maxLength={40}
+                invalid={!!tagError}
                 placeholder="press enter to add"
               />
               <Button type="button" variant="outline" onClick={addTag}>
                 add
               </Button>
             </div>
-            {(form.tags ?? []).length > 0 && (
+            {tagError ? (
+              <FieldError>{tagError}</FieldError>
+            ) : (
+              <FieldHint>up to 10 tags, letters/numbers/space/_/-</FieldHint>
+            )}
+            {form.tags.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1">
-                {(form.tags ?? []).map((t) => (
+                {form.tags.map((t) => (
                   <button
                     key={t}
                     type="button"
@@ -200,20 +333,29 @@ function TradesInner() {
               </div>
             )}
           </div>
+
           <div className="sm:col-span-2">
             <Label htmlFor="notes">notes</Label>
             <Textarea
               id="notes"
-              value={form.notes ?? ''}
+              name="notes"
+              value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              onBlur={() => blur('notes')}
+              invalid={!!showError('notes')}
               rows={3}
+              maxLength={2000}
               placeholder="what was the setup?"
             />
+            <div className="mt-1 flex items-center justify-between">
+              <FieldError>{showError('notes')}</FieldError>
+              <span className="text-xs text-white/30">{form.notes.length} / 2000</span>
+            </div>
           </div>
 
-          {err && (
+          {formErr && (
             <div className="sm:col-span-2">
-              <Alert kind="error">{err}</Alert>
+              <Alert kind="error">{formErr}</Alert>
             </div>
           )}
           {okMsg && (
