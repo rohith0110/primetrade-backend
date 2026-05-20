@@ -16,7 +16,7 @@ import {
   Select,
   Textarea,
 } from '@/components/ui';
-import { fieldErrorsFrom, updateTradeSchema } from '@/lib/validation';
+import { fieldErrorsFrom, sanitizeDecimalInput, updateTradeSchema } from '@/lib/validation';
 
 type Field = 'symbol' | 'side' | 'entryPrice' | 'quantity' | 'exitPrice' | 'notes';
 
@@ -204,7 +204,7 @@ function TradeDetailInner() {
               inputMode="decimal"
               pattern="[0-9]*\.?[0-9]*"
               value={entryPrice}
-              onChange={(e) => setEntryPrice(e.target.value)}
+              onChange={(e) => setEntryPrice(sanitizeDecimalInput(e.target.value))}
               onBlur={() => blur('entryPrice')}
               invalid={!!showError('entryPrice')}
               maxLength={24}
@@ -222,7 +222,7 @@ function TradeDetailInner() {
               inputMode="decimal"
               pattern="[0-9]*\.?[0-9]*"
               value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
+              onChange={(e) => setQuantity(sanitizeDecimalInput(e.target.value))}
               onBlur={() => blur('quantity')}
               invalid={!!showError('quantity')}
               maxLength={24}
@@ -240,7 +240,7 @@ function TradeDetailInner() {
               inputMode="decimal"
               pattern="[0-9]*\.?[0-9]*"
               value={exitPrice}
-              onChange={(e) => setExitPrice(e.target.value)}
+              onChange={(e) => setExitPrice(sanitizeDecimalInput(e.target.value))}
               onBlur={() => blur('exitPrice')}
               invalid={!!showError('exitPrice')}
               maxLength={24}

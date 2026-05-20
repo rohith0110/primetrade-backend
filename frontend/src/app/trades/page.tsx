@@ -16,7 +16,12 @@ import {
   Select,
   Textarea,
 } from '@/components/ui';
-import { createTradeSchema, fieldErrorsFrom, tagSchema } from '@/lib/validation';
+import {
+  createTradeSchema,
+  fieldErrorsFrom,
+  sanitizeDecimalInput,
+  tagSchema,
+} from '@/lib/validation';
 
 function pnlClass(pnl: string | null) {
   if (!pnl) return 'text-white/40';
@@ -240,7 +245,9 @@ function TradesInner() {
               inputMode="decimal"
               pattern="[0-9]*\.?[0-9]*"
               value={form.entryPrice}
-              onChange={(e) => setForm({ ...form, entryPrice: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, entryPrice: sanitizeDecimalInput(e.target.value) })
+              }
               onBlur={() => blur('entryPrice')}
               invalid={!!showError('entryPrice')}
               maxLength={24}
@@ -259,7 +266,9 @@ function TradesInner() {
               inputMode="decimal"
               pattern="[0-9]*\.?[0-9]*"
               value={form.quantity}
-              onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, quantity: sanitizeDecimalInput(e.target.value) })
+              }
               onBlur={() => blur('quantity')}
               invalid={!!showError('quantity')}
               maxLength={24}
@@ -278,7 +287,9 @@ function TradesInner() {
               inputMode="decimal"
               pattern="[0-9]*\.?[0-9]*"
               value={form.exitPrice}
-              onChange={(e) => setForm({ ...form, exitPrice: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, exitPrice: sanitizeDecimalInput(e.target.value) })
+              }
               onBlur={() => blur('exitPrice')}
               invalid={!!showError('exitPrice')}
               maxLength={24}

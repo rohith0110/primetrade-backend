@@ -104,6 +104,21 @@ export const updateTradeSchema = z.object({
   notes: notesSchema,
 });
 
+// input sanitizers -----------------------------------------------------------
+
+// strips anything that isn't a digit or '.', and collapses extra dots so we
+// keep at most one. used on onChange for price/quantity inputs — handles
+// typing, paste, drop, and IME the same way.
+export function sanitizeDecimalInput(raw: string): string {
+  const digitsOnly = raw.replace(/[^\d.]/g, '');
+  const firstDot = digitsOnly.indexOf('.');
+  if (firstDot === -1) return digitsOnly;
+  return (
+    digitsOnly.slice(0, firstDot + 1) +
+    digitsOnly.slice(firstDot + 1).replace(/\./g, '')
+  );
+}
+
 // helpers --------------------------------------------------------------------
 
 export type FieldErrors<T extends z.ZodTypeAny> = Partial<
