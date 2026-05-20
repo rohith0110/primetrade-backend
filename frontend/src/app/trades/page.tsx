@@ -177,10 +177,10 @@ function TradesInner() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-end justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="font-mono text-xs uppercase tracking-widest text-white/40">trades</p>
-          <h1 className="mt-1 text-3xl font-semibold">your trade journal</h1>
+          <h1 className="mt-1 text-2xl font-semibold sm:text-3xl">your trade journal</h1>
         </div>
         <div className="flex items-center gap-2">
           <Label htmlFor="filter">filter</Label>
@@ -390,51 +390,101 @@ function TradesInner() {
         ) : items.length === 0 ? (
           <p className="mt-6 text-white/40">no trades yet.</p>
         ) : (
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="text-xs uppercase tracking-wider text-white/40">
-                <tr>
-                  <th className="py-2 pr-4">symbol</th>
-                  <th className="py-2 pr-4">side</th>
-                  <th className="py-2 pr-4">status</th>
-                  <th className="py-2 pr-4">entry</th>
-                  <th className="py-2 pr-4">exit</th>
-                  <th className="py-2 pr-4">qty</th>
-                  <th className="py-2 pr-4 text-right">p&amp;l</th>
-                  <th className="py-2"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/10">
-                {items.map((t) => (
-                  <tr key={t.id} className="hover:bg-white/5">
-                    <td className="py-3 pr-4 font-mono">{t.symbol}</td>
-                    <td className="py-3 pr-4">
-                      <Badge tone={t.side === 'LONG' ? 'green' : 'red'}>{t.side}</Badge>
-                    </td>
-                    <td className="py-3 pr-4">
-                      <Badge tone={t.status === 'OPEN' ? 'amber' : 'neutral'}>{t.status}</Badge>
-                    </td>
-                    <td className="py-3 pr-4 font-mono">{Number(t.entryPrice).toFixed(2)}</td>
-                    <td className="py-3 pr-4 font-mono">
-                      {t.exitPrice ? Number(t.exitPrice).toFixed(2) : '—'}
-                    </td>
-                    <td className="py-3 pr-4 font-mono">{t.quantity}</td>
-                    <td className={`py-3 pr-4 text-right font-mono ${pnlClass(t.pnl)}`}>
-                      {t.pnl ? Number(t.pnl).toFixed(2) : '—'}
-                    </td>
-                    <td className="py-3">
-                      <Link
-                        href={`/trades/${t.id}`}
-                        className="rounded border border-white/20 px-2 py-1 text-xs hover:border-white hover:bg-white hover:text-black"
-                      >
-                        edit
-                      </Link>
-                    </td>
+          <>
+            {/* table on >= sm */}
+            <div className="mt-4 hidden overflow-x-auto sm:block">
+              <table className="w-full text-left text-sm">
+                <thead className="text-xs uppercase tracking-wider text-white/40">
+                  <tr>
+                    <th className="py-2 pr-4">symbol</th>
+                    <th className="py-2 pr-4">side</th>
+                    <th className="py-2 pr-4">status</th>
+                    <th className="py-2 pr-4">entry</th>
+                    <th className="py-2 pr-4">exit</th>
+                    <th className="py-2 pr-4">qty</th>
+                    <th className="py-2 pr-4 text-right">p&amp;l</th>
+                    <th className="py-2"></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  {items.map((t) => (
+                    <tr key={t.id} className="hover:bg-white/5">
+                      <td className="py-3 pr-4 font-mono">{t.symbol}</td>
+                      <td className="py-3 pr-4">
+                        <Badge tone={t.side === 'LONG' ? 'green' : 'red'}>{t.side}</Badge>
+                      </td>
+                      <td className="py-3 pr-4">
+                        <Badge tone={t.status === 'OPEN' ? 'amber' : 'neutral'}>{t.status}</Badge>
+                      </td>
+                      <td className="py-3 pr-4 font-mono">{Number(t.entryPrice).toFixed(2)}</td>
+                      <td className="py-3 pr-4 font-mono">
+                        {t.exitPrice ? Number(t.exitPrice).toFixed(2) : '—'}
+                      </td>
+                      <td className="py-3 pr-4 font-mono">{t.quantity}</td>
+                      <td className={`py-3 pr-4 text-right font-mono ${pnlClass(t.pnl)}`}>
+                        {t.pnl ? Number(t.pnl).toFixed(2) : '—'}
+                      </td>
+                      <td className="py-3">
+                        <Link
+                          href={`/trades/${t.id}`}
+                          className="rounded border border-white/20 px-2 py-1 text-xs hover:border-white hover:bg-white hover:text-black"
+                        >
+                          edit
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* card list on < sm */}
+            <ul className="mt-4 space-y-3 sm:hidden">
+              {items.map((t) => (
+                <li key={t.id} className="rounded-md border border-white/10 p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <Link href={`/trades/${t.id}`} className="font-mono text-base hover:underline">
+                      {t.symbol}
+                    </Link>
+                    <div className="flex flex-wrap justify-end gap-1">
+                      <Badge tone={t.side === 'LONG' ? 'green' : 'red'}>{t.side}</Badge>
+                      <Badge tone={t.status === 'OPEN' ? 'amber' : 'neutral'}>{t.status}</Badge>
+                    </div>
+                  </div>
+                  <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+                    <div>
+                      <dt className="uppercase tracking-wider text-white/40">entry</dt>
+                      <dd className="font-mono">{Number(t.entryPrice).toFixed(2)}</dd>
+                    </div>
+                    <div>
+                      <dt className="uppercase tracking-wider text-white/40">exit</dt>
+                      <dd className="font-mono">
+                        {t.exitPrice ? Number(t.exitPrice).toFixed(2) : '—'}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="uppercase tracking-wider text-white/40">qty</dt>
+                      <dd className="font-mono">{t.quantity}</dd>
+                    </div>
+                    <div>
+                      <dt className="uppercase tracking-wider text-white/40">p&amp;l</dt>
+                      <dd className={`font-mono ${pnlClass(t.pnl)}`}>
+                        {t.pnl ? Number(t.pnl).toFixed(2) : '—'}
+                      </dd>
+                    </div>
+                  </dl>
+                  <div className="mt-3 flex justify-end">
+                    <Link
+                      href={`/trades/${t.id}`}
+                      className="rounded border border-white/20 px-3 py-1.5 text-xs hover:border-white hover:bg-white hover:text-black"
+                    >
+                      edit
+                    </Link>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </Card>
     </div>
