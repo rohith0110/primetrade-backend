@@ -23,6 +23,9 @@ const spec = swaggerJSDoc({
 });
 
 export function mountSwagger(app: Express) {
-  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(spec));
-  app.get('/api/docs.json', (_req, res) => res.json(spec));
+  // swagger-ui-express ships handlers that fight strict express types; cast is fine
+  app.use('/api/docs', swaggerUi.serve as never, swaggerUi.setup(spec) as never);
+  app.get('/api/docs.json', (_req, res) => {
+    res.json(spec);
+  });
 }
