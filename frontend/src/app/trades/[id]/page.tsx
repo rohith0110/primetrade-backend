@@ -142,7 +142,7 @@ function TradeDetailInner() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <Link href="/trades" className="text-sm text-white/60 hover:text-white">
           ← back to trades
         </Link>
@@ -153,8 +153,8 @@ function TradeDetailInner() {
       </div>
 
       <Card>
-        <h1 className="font-mono text-2xl">{trade.symbol}</h1>
-        <p className="mt-1 text-sm text-white/40">
+        <h1 className="break-all font-mono text-xl sm:text-2xl">{trade.symbol}</h1>
+        <p className="mt-1 text-xs text-white/40 sm:text-sm">
           opened {new Date(trade.openedAt).toLocaleString()}
           {trade.closedAt ? ` · closed ${new Date(trade.closedAt).toLocaleString()}` : ''}
         </p>
@@ -285,12 +285,12 @@ function TradeDetailInner() {
             </div>
           )}
 
-          <div className="flex items-center justify-between sm:col-span-2">
-            <Button type="submit" disabled={busy}>
-              {busy ? 'saving…' : 'save changes'}
-            </Button>
+          <div className="flex flex-col-reverse gap-3 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
             <Button type="button" variant="danger" onClick={onDelete} disabled={busy}>
               delete
+            </Button>
+            <Button type="submit" disabled={busy}>
+              {busy ? 'saving…' : 'save changes'}
             </Button>
           </div>
         </form>

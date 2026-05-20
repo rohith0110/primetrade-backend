@@ -13,7 +13,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   ref,
 ) {
   const base =
-    'inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed';
+    'inline-flex min-h-[40px] items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed';
   const styles = {
     solid: 'bg-white text-black hover:bg-white/90',
     outline:
@@ -35,7 +35,7 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
         ref={ref}
         aria-invalid={invalid || undefined}
         className={cx(
-          'w-full rounded-md border bg-black px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none',
+          'block w-full min-h-[40px] rounded-md border bg-black px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none',
           invalid
             ? 'border-accent-red focus:border-accent-red'
             : 'border-white/20 focus:border-white',
@@ -56,7 +56,7 @@ export const Textarea = forwardRef<
       ref={ref}
       aria-invalid={invalid || undefined}
       className={cx(
-        'w-full rounded-md border bg-black px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none',
+        'block w-full min-h-[40px] rounded-md border bg-black px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none',
         invalid
           ? 'border-accent-red focus:border-accent-red'
           : 'border-white/20 focus:border-white',
@@ -112,7 +112,9 @@ export function Label({ children, htmlFor }: { children: React.ReactNode; htmlFo
 
 export function Card({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={cx('rounded-lg border border-white/10 bg-black p-5', className)}>{children}</div>
+    <div className={cx('rounded-lg border border-white/10 bg-black p-4 sm:p-5', className)}>
+      {children}
+    </div>
   );
 }
 

@@ -50,10 +50,12 @@ function DashboardInner() {
         <p className="font-mono text-xs uppercase tracking-widest text-white/40">
           welcome back
         </p>
-        <h1 className="mt-1 text-3xl font-semibold">{user?.name || user?.email}</h1>
+        <h1 className="mt-1 break-all text-2xl font-semibold sm:break-normal sm:text-3xl">
+          {user?.name || user?.email}
+        </h1>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
         <Card>
           <p className="text-xs uppercase tracking-wider text-white/40">open</p>
           <p className="mt-2 text-3xl font-semibold">{loading ? '—' : stats.open}</p>
@@ -91,8 +93,11 @@ function DashboardInner() {
         ) : (
           <ul className="mt-4 divide-y divide-white/10">
             {recent.map((t) => (
-              <li key={t.id} className="flex items-center justify-between py-3">
-                <div className="flex items-center gap-3">
+              <li
+                key={t.id}
+                className="flex flex-wrap items-center justify-between gap-2 py-3"
+              >
+                <div className="flex flex-wrap items-center gap-2">
                   <Link href={`/trades/${t.id}`} className="font-mono hover:underline">
                     {t.symbol}
                   </Link>

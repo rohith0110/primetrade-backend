@@ -188,7 +188,7 @@ function TradesInner() {
             id="filter"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as '' | 'OPEN' | 'CLOSED')}
-            className="rounded-md border border-white/20 bg-black px-3 py-2 text-sm"
+            className="min-h-[40px] rounded-md border border-white/20 bg-black px-3 py-2 text-sm"
           >
             <option value="">all</option>
             <option value="OPEN">open</option>

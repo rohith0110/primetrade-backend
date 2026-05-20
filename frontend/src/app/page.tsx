@@ -2,21 +2,21 @@ import Link from 'next/link';
 
 export default function HomePage() {
   return (
-    <div className="grid gap-12 py-12 md:grid-cols-2 md:gap-20 md:py-20">
+    <div className="grid gap-8 py-8 md:grid-cols-2 md:gap-20 md:py-20">
       <div>
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-white/40">
+        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/40 sm:text-xs">
           primetrade.assignment
         </p>
-        <h1 className="mt-4 text-4xl font-semibold leading-tight md:text-5xl">
+        <h1 className="mt-4 text-3xl font-semibold leading-tight sm:text-4xl md:text-5xl">
           A small trade journal — built for a backend intern assignment.
         </h1>
-        <p className="mt-6 max-w-prose text-white/70">
+        <p className="mt-5 max-w-prose text-sm text-white/70 sm:text-base">
           Log your trades, track open positions, watch your P&amp;L. JWT auth on the api,
           role-based access for admins, postgres behind a typed prisma layer. Everything
           runs locally in a couple of minutes.
         </p>
 
-        <div className="mt-8 flex flex-wrap gap-3">
+        <div className="mt-7 flex flex-wrap gap-3">
           <Link
             href="/register"
             className="rounded-md bg-white px-5 py-2.5 text-sm font-medium text-black hover:bg-white/90"
@@ -32,9 +32,9 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="rounded-lg border border-white/10 p-6 font-mono text-xs text-white/70">
+      <div className="overflow-x-auto rounded-lg border border-white/10 p-4 font-mono text-[11px] text-white/70 sm:p-6 sm:text-xs">
         <p className="text-white/40"># a glimpse of the api</p>
-        <pre className="mt-3 whitespace-pre-wrap leading-6">{`POST /api/v1/auth/register
+        <pre className="mt-3 whitespace-pre leading-6 sm:whitespace-pre-wrap">{`POST /api/v1/auth/register
 POST /api/v1/auth/login
 GET  /api/v1/me
 
