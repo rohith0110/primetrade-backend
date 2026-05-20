@@ -26,13 +26,19 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   return <button ref={ref} className={cx(base, styles, className)} {...rest} />;
 });
 
-export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
-  function Input({ className, ...rest }, ref) {
+type WithError = { invalid?: boolean };
+
+export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & WithError>(
+  function Input({ className, invalid, ...rest }, ref) {
     return (
       <input
         ref={ref}
+        aria-invalid={invalid || undefined}
         className={cx(
-          'w-full rounded-md border border-white/20 bg-black px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-white focus:outline-none',
+          'w-full rounded-md border bg-black px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none',
+          invalid
+            ? 'border-accent-red focus:border-accent-red'
+            : 'border-white/20 focus:border-white',
           className,
         )}
         {...rest}
@@ -41,37 +47,60 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
   },
 );
 
-export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(
-  function Textarea({ className, ...rest }, ref) {
-    return (
-      <textarea
-        ref={ref}
-        className={cx(
-          'w-full rounded-md border border-white/20 bg-black px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-white focus:outline-none',
-          className,
-        )}
-        {...rest}
-      />
-    );
-  },
-);
+export const Textarea = forwardRef<
+  HTMLTextAreaElement,
+  TextareaHTMLAttributes<HTMLTextAreaElement> & WithError
+>(function Textarea({ className, invalid, ...rest }, ref) {
+  return (
+    <textarea
+      ref={ref}
+      aria-invalid={invalid || undefined}
+      className={cx(
+        'w-full rounded-md border bg-black px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none',
+        invalid
+          ? 'border-accent-red focus:border-accent-red'
+          : 'border-white/20 focus:border-white',
+        className,
+      )}
+      {...rest}
+    />
+  );
+});
 
-export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement>>(
-  function Select({ className, children, ...rest }, ref) {
-    return (
-      <select
-        ref={ref}
-        className={cx(
-          'w-full rounded-md border border-white/20 bg-black px-3 py-2 text-sm text-white focus:border-white focus:outline-none',
-          className,
-        )}
-        {...rest}
-      >
-        {children}
-      </select>
-    );
-  },
-);
+export const Select = forwardRef<
+  HTMLSelectElement,
+  SelectHTMLAttributes<HTMLSelectElement> & WithError
+>(function Select({ className, children, invalid, ...rest }, ref) {
+  return (
+    <select
+      ref={ref}
+      aria-invalid={invalid || undefined}
+      className={cx(
+        'w-full rounded-md border bg-black px-3 py-2 text-sm text-white focus:outline-none',
+        invalid
+          ? 'border-accent-red focus:border-accent-red'
+          : 'border-white/20 focus:border-white',
+        className,
+      )}
+      {...rest}
+    >
+      {children}
+    </select>
+  );
+});
+
+export function FieldError({ children }: { children?: string | null }) {
+  if (!children) return null;
+  return (
+    <p role="alert" className="mt-1 text-xs text-accent-red">
+      {children}
+    </p>
+  );
+}
+
+export function FieldHint({ children }: { children: React.ReactNode }) {
+  return <p className="mt-1 text-xs text-white/40">{children}</p>;
+}
 
 export function Label({ children, htmlFor }: { children: React.ReactNode; htmlFor?: string }) {
   return (
