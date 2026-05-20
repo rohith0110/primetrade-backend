@@ -1,0 +1,137 @@
+{
+  "info": {
+    "name": "Primetrade API",
+    "_postman_id": "9b1f2c30-2e84-4b56-9a6a-primetradev1",
+    "description": "Trade journal API with JWT auth and role-based access.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000/api/v1" },
+    { "key": "token", "value": "" },
+    { "key": "tradeId", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"trader@example.com\",\n  \"password\": \"hunter22supersecret\",\n  \"name\": \"Sample Trader\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.token) pm.collectionVariables.set('token', json.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"trader@example.com\",\n  \"password\": \"hunter22supersecret\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.token) pm.collectionVariables.set('token', json.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "me",
+          "request": { "method": "GET", "url": "{{baseUrl}}/me" }
+        }
+      ]
+    },
+    {
+      "name": "trades",
+      "item": [
+        {
+          "name": "list",
+          "request": { "method": "GET", "url": "{{baseUrl}}/trades" }
+        },
+        {
+          "name": "create",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/trades",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"symbol\": \"BTCUSDT\",\n  \"side\": \"LONG\",\n  \"entryPrice\": \"65000.50\",\n  \"quantity\": \"0.1\",\n  \"notes\": \"breakout above range high\",\n  \"tags\": [\"breakout\", \"crypto\"]\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.id) pm.collectionVariables.set('tradeId', json.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "get one",
+          "request": { "method": "GET", "url": "{{baseUrl}}/trades/{{tradeId}}" }
+        },
+        {
+          "name": "update (close)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/trades/{{tradeId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"exitPrice\": \"66500.00\"\n}"
+            }
+          }
+        },
+        {
+          "name": "delete",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/trades/{{tradeId}}" }
+        }
+      ]
+    },
+    {
+      "name": "admin",
+      "item": [
+        { "name": "list users", "request": { "method": "GET", "url": "{{baseUrl}}/admin/users" } },
+        { "name": "list all trades", "request": { "method": "GET", "url": "{{baseUrl}}/admin/trades" } },
+        { "name": "stats", "request": { "method": "GET", "url": "{{baseUrl}}/admin/stats" } }
+      ]
+    }
+  ]
+}
