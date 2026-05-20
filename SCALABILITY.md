@@ -31,7 +31,7 @@ This is a short, practical take on how I'd grow this past a single-server demo. 
 
 ## Deployment shape I'd reach for
 
-```
+```txt
 [ Cloudflare ]
        │
 [ Vercel ] ── frontend (Next.js)

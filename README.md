@@ -8,7 +8,7 @@ A small full-stack app for the Primetrade.ai backend intern assignment: a trade 
 - **Frontend** — Next.js (App Router) + TypeScript + Tailwind, plain black-and-white styling
 - **Package manager** — pnpm
 
-```
+```txt
 backend/      express api
 frontend/     next.js ui
 SCALABILITY.md   notes on scaling further
@@ -50,6 +50,7 @@ Frontend runs on `http://localhost:3000`.
 ## What's in here
 
 ### Auth
+
 - `POST /api/v1/auth/register` — create account, returns JWT
 - `POST /api/v1/auth/login` — exchange credentials for JWT
 - `GET /api/v1/me` — who am I (requires JWT)
@@ -57,6 +58,7 @@ Frontend runs on `http://localhost:3000`.
 Passwords are bcrypt-hashed (10 rounds). Tokens are signed HS256 with a configurable expiry (default 7d).
 
 ### Trades (the "secondary entity")
+
 - `GET /api/v1/trades` — list your trades (filterable by `status`, `symbol`; paginated)
 - `POST /api/v1/trades` — log a new trade
 - `GET /api/v1/trades/:id` — fetch one
@@ -66,6 +68,7 @@ Passwords are bcrypt-hashed (10 rounds). Tokens are signed HS256 with a configur
 Each trade has a symbol, side (`LONG`/`SHORT`), entry/exit price, quantity, status (`OPEN`/`CLOSED`), computed P&L, optional notes and tags. P&L is computed server-side whenever exit price changes.
 
 ### Admin (role-gated)
+
 - `GET /api/v1/admin/users` — list everyone
 - `PATCH /api/v1/admin/users/:id` — change role / name
 - `DELETE /api/v1/admin/users/:id` — remove a user
@@ -75,6 +78,7 @@ Each trade has a symbol, side (`LONG`/`SHORT`), entry/exit price, quantity, stat
 Admins can't demote or delete themselves — small but easy footgun to leave in.
 
 ### Frontend pages
+
 - `/` — landing
 - `/login`, `/register`
 - `/dashboard` — authed home with quick stats
@@ -89,7 +93,7 @@ The assignment lets you pick the secondary entity. A todo list felt boring and P
 
 ## Project layout
 
-```
+```txt
 backend/
   src/
     app.ts                 # express app composition
