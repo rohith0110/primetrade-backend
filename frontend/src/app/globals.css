@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: #000;
+  color: #fff;
+  min-height: 100%;
+}
+
+/* every interactive thing gets the pointer — explicit request */
+button,
+a,
+[role='button'],
+input[type='submit'],
+input[type='button'],
+input[type='checkbox'],
+input[type='radio'],
+select,
+summary,
+label[for] {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+
+/* keep inputs readable on the black background */
+input,
+textarea,
+select {
+  background: #000;
+  color: #fff;
+}
+
+::selection {
+  background: #fff;
+  color: #000;
+}
+
+/* subtle scrollbar tweak so it stops looking grey-on-black */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #1a1a1a;
+  border: 2px solid #000;
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #2a2a2a;
+}
