@@ -8,6 +8,13 @@ import { fieldErrorsFrom, loginSchema } from '@/lib/validation';
 
 type Field = 'email' | 'password';
 
+// matches the defaults in backend/prisma/seed.ts — if you override SEED_ADMIN_*
+// when seeding, this button will need updating too.
+const DEMO_ADMIN = {
+  email: 'admin@primetrade.local',
+  password: 'admin12345',
+};
+
 export default function LoginPage() {
   const { signIn } = useAuth();
   const [email, setEmail] = useState('');
@@ -48,6 +55,24 @@ export default function LoginPage() {
       await signIn(parsed.email, parsed.password);
     } catch (e: unknown) {
       setFormErr((e as { message?: string }).message ?? 'sign in failed');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function useDemoAdmin() {
+    setFormErr(null);
+    setErrors({});
+    setEmail(DEMO_ADMIN.email);
+    setPassword(DEMO_ADMIN.password);
+    setBusy(true);
+    try {
+      await signIn(DEMO_ADMIN.email, DEMO_ADMIN.password);
+    } catch (e: unknown) {
+      setFormErr(
+        (e as { message?: string }).message ??
+          'demo admin sign-in failed — did you run pnpm db:seed?',
+      );
     } finally {
       setBusy(false);
     }
@@ -112,6 +137,25 @@ export default function LoginPage() {
             {busy ? 'signing in…' : 'sign in'}
           </Button>
         </form>
+
+        <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-wider text-white/30">
+          <span className="h-px flex-1 bg-white/10" />
+          or
+          <span className="h-px flex-1 bg-white/10" />
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={useDemoAdmin}
+          disabled={busy}
+          className="w-full"
+        >
+          use demo admin
+        </Button>
+        <p className="mt-2 text-center text-xs text-white/40">
+          one-click sign-in with the seeded admin account ({DEMO_ADMIN.email}).
+        </p>
 
         <p className="mt-6 text-center text-sm text-white/60">
           no account?{' '}
