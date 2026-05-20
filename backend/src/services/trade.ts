@@ -41,6 +41,7 @@ export function toTradeUpdate(
     entryPrice: Prisma.Decimal;
     exitPrice: Prisma.Decimal | null;
     quantity: Prisma.Decimal;
+    closedAt: Date | null;
   },
 ): Prisma.TradeUncheckedUpdateInput {
   const side = input.side ?? existing.side;
@@ -53,17 +54,32 @@ export function toTradeUpdate(
       ? null
       : new Prisma.Decimal(input.exitPrice);
 
+  // only update closedAt when the close-state actually changes (or caller passes one explicitly).
+  // otherwise editing notes on a closed trade would silently bump closedAt forward.
+  const wasClosed = existing.exitPrice !== null;
+  const willBeClosed = exit !== null;
+  let closedAt: Date | null | undefined;
+  if (input.closedAt !== undefined) {
+    closedAt = input.closedAt === null ? null : new Date(input.closedAt);
+  } else if (!wasClosed && willBeClosed) {
+    closedAt = new Date();
+  } else if (wasClosed && !willBeClosed) {
+    closedAt = null;
+  } else {
+    closedAt = existing.closedAt;
+  }
+
   return {
     ...(input.symbol !== undefined ? { symbol: input.symbol } : {}),
     side,
     entryPrice: entry,
     quantity: qty,
     exitPrice: exit,
-    status: exit !== null ? 'CLOSED' : 'OPEN',
+    status: willBeClosed ? 'CLOSED' : 'OPEN',
     pnl: computePnL(side, entry, exit, qty),
     ...(input.notes !== undefined ? { notes: input.notes } : {}),
     ...(input.tags !== undefined ? { tags: input.tags } : {}),
     ...(input.openedAt !== undefined ? { openedAt: new Date(input.openedAt) } : {}),
-    closedAt: exit !== null ? (input.closedAt ? new Date(input.closedAt) : new Date()) : null,
+    closedAt,
   };
 }
